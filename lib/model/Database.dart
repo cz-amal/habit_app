@@ -50,7 +50,7 @@ class Database with ChangeNotifier {
       print("Dataset fetched successfully: $globalDataset");
       notifyListeners();
     } catch (e) {
-      print("Error fetching dataset: $e");
+      print("Error fetching datasets: $e");
     }
   }
 
