@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:habit_app/components/input_field.dart';
 import 'package:habit_app/model/Database.dart';
 import 'package:habit_app/model/Habit.dart';
+import 'package:habit_app/model/complete.dart';
 import 'package:provider/provider.dart';
 
 class AddHabit extends StatefulWidget {
@@ -228,15 +229,13 @@ class _AddHabitState extends State<AddHabit> {
                         name: habit_controller.text,
                         isGood: isGood,
                         description: desc_controller.text,
-                        completedDates: {today:[false,0]},
                         type: type,
                         threshold: int.tryParse(threshold_controller.text),
                         time: date,
 
                     );
-
-                    final db = context.read<Database>();
-                    db.addHabit(newHabit);
+                    final db = context.read<Sql>();
+                    db.insertHabit(newHabit);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text("Habit added successfully!"),

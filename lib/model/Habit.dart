@@ -1,51 +1,45 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Habit {
+  final int? id;
   final String name;
   final String description;
-  final bool isGood; // "good" or "bad"
+  final bool isGood;
   final bool type;
   final int? threshold;
   final DateTime time;
-  final Map<String, List<dynamic>> completedDates; // Date -> Completion Status
 
   Habit({
+    this.id,
     required this.name,
     required this.description,
     required this.isGood,
     required this.type,
     this.threshold,
     required this.time,
-    required this.completedDates,
   });
 
-  // Convert a Firestore document into a Habit object
-  factory Habit.fromFirestore(Map<String, dynamic> data) {
-    return Habit(
-      name: data['name'] ?? '',
-      description: data['description'] ?? '',
-      isGood: data['isGood'] ?? false, // Default to false if not provided
-      type: data['type'] ?? false, // Default to false if not provided
-      threshold: data['threshold'] ?? 0, // Default to 0 if not provided
-      time: (data['time'] as Timestamp).toDate(), // Convert Firestore Timestamp to DateTime
-      completedDates: (data['completed_dates'] ?? {}).map<String, List<dynamic>>(
-            (key, value) => MapEntry(key, List<dynamic>.from(value)),
-      ),
-    );
-  }
-
-  // Convert Habit to a Map to store in Firestore
+  // Convert Habit to Map for SQLite
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'name': name,
       'description': description,
-      'isGood': isGood,
-      'type': type,
-      'threshold': threshold,
-      'time': Timestamp.fromDate(time), // Convert DateTime to Firestore Timestamp
-      'completed_dates': completedDates.map<String, dynamic>(
-            (key, value) => MapEntry(key, value),
-      ),
+      'isGood': isGood ? 1 : 0,
+      'type': type ? 1 : 0,
+      'threshold': threshold ?? 0,
+      'time': time.toIso8601String(),
     };
+  }
+
+  // Convert SQLite Map to Habit
+  factory Habit.fromMap(Map<String, dynamic> map) {
+    return Habit(
+      id: map['id'],
+      name: map['name'],
+      description: map['description'],
+      isGood: map['isGood'] == 1,
+      type: map['type'] == 1,
+      threshold: map['threshold'],
+      time: DateTime.parse(map['time']),
+    );
   }
 }

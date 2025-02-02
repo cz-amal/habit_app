@@ -10,7 +10,7 @@ import 'components/black_screen.dart';
 import 'model/Database.dart';
 void main() async {
    WidgetsFlutterBinding.ensureInitialized();
-   await Firebase.initializeApp();
+   // await Firebase.initializeApp();
 
 
 
@@ -18,7 +18,7 @@ void main() async {
   runApp(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (context) => Database()),
+          ChangeNotifierProvider(create: (context) => Sql()),
           ChangeNotifierProvider(create: (context) => ThemeProvider()),
         ],
         child: const MyApp(),

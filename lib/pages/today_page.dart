@@ -62,10 +62,10 @@ class _TodayPageState extends State<TodayPage>
                         SizedBox(height: 20),
                         Center(child: TextTile(text: "calender")),
                         SizedBox(height: 20),
-                        Consumer<Database>(
+                        Consumer<Sql>(
                           builder: (context, db, child) {
                             return HeatMapCalendar(
-                              key: ValueKey(db.myGlobaldataset),
+                              // key: ValueKey(db.myGlobaldataset),
                               // Forces rebuild when dataset changes
 
                               showColorTip: false,
@@ -73,8 +73,10 @@ class _TodayPageState extends State<TodayPage>
                               defaultColor: Colors.grey[800],
                               flexible: true,
                               colorMode: ColorMode.color,
-                              datasets: db.myGlobaldataset,
-                              // datasets: {DateTime(2025, 1, 26): 1},
+                              // datasets: db.myGlobaldataset,
+                              // datasets: {DateTime(2025, 1,
+                              // 26): 1},
+                              datasets: {},
                               colorsets: {
                                 1: Colors.red.shade500,
                                 2: Colors.red.shade300,
@@ -115,11 +117,11 @@ class _TodayPageState extends State<TodayPage>
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: ShowHabit(gridtype: true),
+                      // child: ShowHabit(gridtype: true),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: ShowHabit(gridtype: false),
+                      // child: ShowHabit(gridtype: false),
                     ),
                   ],
                 ),

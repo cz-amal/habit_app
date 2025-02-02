@@ -15,7 +15,6 @@ class HabitsPage extends StatefulWidget {
 }
 
 class _HabitsPageState extends State<HabitsPage> {
-
   @override
   void initState() {
     // TODO: implement initState
@@ -24,7 +23,7 @@ class _HabitsPageState extends State<HabitsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Database>(
+    return Consumer<Sql>(
         builder: (context, db, child) => Scaffold(
             backgroundColor: Colors.black,
             floatingActionButton: ElevatedButton(
@@ -64,38 +63,53 @@ class _HabitsPageState extends State<HabitsPage> {
                     SizedBox(
                       height: 5,
                     ),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: db.MyHabits.isNotEmpty ? db.MyHabits.length : 1, // Show one item when empty
-                itemBuilder: (context, index) {
-                  if (db.MyHabits.isNotEmpty) {
-                    // Display habits when the list is not empty
-                    final habit = db.MyHabits[index];
-                    String habitText = habit['name'];
-                    String description = habit['description'];
-                    bool isGood = habit['isGood'];
-                    String docId = habit['id'];
-                    bool type = habit['type'];
-                    int? threshold = habit['threshold'];
-                    DateTime time = habit['time'].toDate();
-                    return HabitTile(
-                      habitText: habitText,
-                      description: description,
-                      isGood: isGood,
-                      id: docId,
-                      type: type,
-                      threshold: threshold,
-                      time:time
-                    );
-                  } else {
-                    // Display an alternative widget when the list is empty
-                    return NoHabitTile();
-                  }
-                },
-              )
-
-              ],
+                    FutureBuilder<List<Map<String, dynamic>>>(
+                        future: db.getmyHabits(),
+                        builder: (context, snapshot) {
+                          List<Map<String, dynamic>> habits = snapshot.data ?? [];
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Center(
+                                child: Text("Error: ${snapshot.error}"));
+                          } else if (!snapshot.hasData ||
+                              snapshot.data!.isEmpty) {
+                            // Display alternative widget when no habits exist
+                            return NoHabitTile();
+                          } else {
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: habits.isNotEmpty
+                                  ? habits.length
+                                  : 1, // Show one item when empty
+                              itemBuilder: (context, index) {
+                                if (habits.isNotEmpty) {
+                                  // Display habits when the list is not empty
+                                  final habit = habits[index];
+                                  print(habit);
+                                  String habitText = habit['name'];
+                                  String description = habit['description'];
+                                  bool isGood = habit['isGood'] == 1;
+                                  String docId = habit['id'].toString();
+                                  bool type = habit['type'] == 1;
+                                  int? threshold = habit['threshold'];
+                                  DateTime time = DateTime.parse(habit['time']);
+                                  return HabitTile(
+                                      habitText: habitText,
+                                      description: description,
+                                      isGood: isGood,
+                                      id: docId,
+                                      type: type,
+                                      threshold: threshold,
+                                      time: time);
+                                }
+                              },
+                            );
+                          }
+                        })
+                  ],
                 ),
               ),
             )));

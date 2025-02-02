@@ -43,8 +43,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    final db = context.read<Database>();
-    db.calculateColorValueForDate(DateTime.now());
+    // final db = context.read<Database>();
+    // db.calculateColorValueForDate(DateTime.now());
   }
 
 

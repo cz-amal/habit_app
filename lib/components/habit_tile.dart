@@ -127,12 +127,12 @@ class _HabitTileState extends State<HabitTile> {
                   ),
                   IconButton(
                       onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => EditHabit(
-                                      id: widget.id,
-                                    )));
+                        // Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //         builder: (context) => EditHabit(
+                        //               id: widget.id,
+                        //             )));
                       },
                       icon: Icon(
                         Icons.edit,
@@ -156,8 +156,8 @@ class _HabitTileState extends State<HabitTile> {
                           Navigator.pop(context);
                         },
                         onConfirmBtnTap: () {
-                          final db = context.read<Database>();
-                          db.deleteHabit(widget.id);
+                          // final db = context.read<Database>();
+                          // db.deleteHabit(widget.id);
                           Navigator.pop(context);
                         },
                       );
