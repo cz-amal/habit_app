@@ -357,6 +357,31 @@ class Sql with ChangeNotifier {
     return results;  // Return the list of maps directly
   }
 
+  Future<List<Map<String, dynamic>>> getaHabits(int habit_id) async {
+    final db = await database;  // Open the database
+    List<Map<String, dynamic>> results = await db.query('habits',where: "id = ?",whereArgs: [habit_id]);
+    // Query the 'habits' table
+    return results;  // Return the list of maps directly
+  }
+
+  Future<void> deleteHabit(int habit_id) async{
+    final db = await database;
+    await db.delete('habits', where: 'id = ?', whereArgs: [habit_id]);
+    await db.delete('complete', where: 'habit_id = ?',whereArgs: [habit_id]);
+    print("habit deleted through sqflite");
+    notifyListeners();
+  }
+
+  Future<void> updateHabit(Habit habit,int habit_id) async {
+    final db = await database;
+    await db.update('habits', habit.toMap(), where: 'id = ?', whereArgs: [habit_id]);
+    print("habit updated through sqflite");
+    notifyListeners();
+  }
+
+
+
+
 
 
 
