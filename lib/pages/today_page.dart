@@ -1,17 +1,12 @@
-import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:habit_app/components/habit_grid.dart';
-import 'package:habit_app/components/habit_tile.dart';
 import 'package:habit_app/components/show_habit.dart';
+import 'package:habit_app/service/notification_service.dart';
 import 'package:provider/provider.dart';
 
 import '../components/text_tile.dart';
 import '../model/Database.dart';
-import '../model/Habit.dart';
-import '../provider/date_color.dart';
 
 class TodayPage extends StatefulWidget {
   TodayPage({super.key});
@@ -44,6 +39,7 @@ class _TodayPageState extends State<TodayPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

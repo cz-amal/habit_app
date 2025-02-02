@@ -1,7 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:habit_app/components/no_habit_tile.dart';
 import 'package:provider/provider.dart';
 
 import '../model/Database.dart';
@@ -23,9 +20,9 @@ class _ShowHabitState extends State<ShowHabit> {
         future: Provider.of<Database>(context, listen: true)
             .getFilteredHabits(widget.gridtype),
         builder: (context, snapshot) {
-          // if (snapshot.connectionState == ConnectionState.waiting) {
-          //   return Center(child: CircularProgressIndicator());
-          // }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
 
           if (snapshot.hasError) {
             return Center(
@@ -63,7 +60,6 @@ class _ShowHabitState extends State<ShowHabit> {
             itemCount: filteredHabits.length,
             itemBuilder: (context, index) {
               Map<String, dynamic> data = filteredHabits[index];
-              print(data);
 
               String docId = data['id'] ?? "";
               String habitText = data['name'];
@@ -88,9 +84,9 @@ class _ShowHabitState extends State<ShowHabit> {
                 current = data['completed_dates'][today][1] ?? 0;
               }
               int? threshold = data['threshold'] ?? 0;
-              print(threshold);
+
               bool done = data['completed_dates'][today][0] ?? false;
-              print(done);
+
 
               return Container(
                 padding: EdgeInsets.symmetric(vertical: 4, horizontal: 2),

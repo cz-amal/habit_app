@@ -1,10 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:habit_app/components/habit_tile.dart';
-import 'package:habit_app/components/text_tile.dart';
 import 'package:habit_app/pages/add_habit.dart';
-import 'package:habit_app/pages/category_page.dart';
 import 'package:provider/provider.dart';
 
 import '../components/no_habit_tile.dart';
@@ -75,7 +72,6 @@ class _HabitsPageState extends State<HabitsPage> {
                   if (db.MyHabits.isNotEmpty) {
                     // Display habits when the list is not empty
                     final habit = db.MyHabits[index];
-                    print(habit);
                     String habitText = habit['name'];
                     String description = habit['description'];
                     bool isGood = habit['isGood'];

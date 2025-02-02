@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:habit_app/components/input_field.dart';
 import 'package:habit_app/model/Database.dart';
-import 'package:habit_app/model/Habit.dart';
 import 'package:provider/provider.dart';
 
 class EditHabit extends StatefulWidget {
@@ -38,9 +37,7 @@ class _EditHabitState extends State<EditHabit> {
     // Fetch the habit data and initialize the fields
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final db = Provider.of<Database>(context, listen: false);
-      print("id is");
-      print(widget.id);
-      print(db.MyHabits);
+
       final habit = db.MyHabits.firstWhere((x) => x['id'] == widget.id);
 
       setState(() {

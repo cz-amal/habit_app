@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:habit_app/components/input_field.dart';
-import 'package:habit_app/provider/date_color.dart';
 import 'package:provider/provider.dart';
 
 import '../model/Database.dart';
@@ -93,8 +92,6 @@ class _HabitGridState extends State<HabitGrid> {
                                             0;
                                     final db = context.read<Database>();
                                     if (input_text >= widget.threshold!) {
-                                      print(
-                                          "input = $input_text and threshold = $widget.rate");
                                       setState(() {
                                         isGreater =
                                             true; // Update checkbox state
@@ -105,8 +102,7 @@ class _HabitGridState extends State<HabitGrid> {
                                           DateTime.now(), true, input_text);
                                       // db.Marked(isChecked, isGreater);
                                     } else {
-                                      print(
-                                          "input = $input_text and threshold = $widget.rate");
+
                                       setState(() {
                                         isGreater =
                                             false; // Update checkbox state

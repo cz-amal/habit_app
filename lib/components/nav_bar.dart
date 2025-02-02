@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:provider/provider.dart';
 
-import '../theme/theme_provider.dart';
 
 class NavPage extends StatelessWidget {
   final void Function(int)? fn;

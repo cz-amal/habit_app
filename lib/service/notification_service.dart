@@ -1,96 +1,70 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/data/latest.dart' as t;
+import 'package:flutter_timezone/flutter_timezone.dart';
 
-class NotificationService {
-  // Singleton pattern
-  static final NotificationService _instance = NotificationService._internal();
-  factory NotificationService() => _instance;
-  NotificationService._internal();
+class Notiservice {
+  final  notificationplugin = FlutterLocalNotificationsPlugin();
+   
+    
 
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+  bool _isInitialized = false;
+  bool get isInialized => _isInitialized;
 
-  // Initialize notifications
-  Future<void> initializeNotifications() async {
-    tz.initializeTimeZones(); // Initialize the timezone database
+  Future<void> initNotif() async {
 
-    const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher'); // Use your app's launcher icon
+      if(_isInitialized) return;
+      t.initializeTimeZones();
+      final String currentZone = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(currentZone));
 
-    const InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-    );
+    const initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    const initSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+    notificationplugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
+  
+    await notificationplugin.initialize(initSettings);
+    
   }
 
-  // Create a notification channel for Android
-  Future<void> createNotificationChannel() async {
-    const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      'daily_notification_channel', // Channel ID
-      'Daily Notifications', // Channel name
-      description: 'Channel for daily notifications', // Add description
-      importance: Importance.max,
-    );
-
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
+  NotificationDetails notificationDetails() {
+    return const NotificationDetails(
+        android: AndroidNotificationDetails(
+            'daily_channel_id', 'Daily notifications',
+            channelDescription: 'Daily Notification Channel',
+            importance: Importance.max,
+            priority: Priority.high));
   }
 
-  // Schedule daily notifications
-  Future<void> scheduleDailyNotifications() async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-    AndroidNotificationDetails(
-      'daily_notification_channel', // Same as Channel ID
-      'Daily Notifications', // Same as Channel name
-      channelDescription: 'Channel for daily notifications', // Add description
-      importance: Importance.max,
-      priority: Priority.high, // Use Priority.high
-      enableVibration: true,
-      playSound: true,
-    );
-
-    const NotificationDetails platformChannelSpecifics =
-    NotificationDetails(android: androidPlatformChannelSpecifics);
-
-    // Schedule notification for 10 AM
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      0, // Notification ID
-      'Good Morning!', // Title
-      'Time to start your day!', // Body
-      _nextInstanceOfTime(10, 0), // Time (10:00 AM)
-      platformChannelSpecifics,
-      uiLocalNotificationDateInterpretation:
-      UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, // Use this
-    );
-
-    // Schedule notification for 7 PM
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      1, // Notification ID
-      'Good Evening!', // Title
-      'Time to relax!', // Body
-      _nextInstanceOfTime(2, 39), // Time (7:00 PM)
-      platformChannelSpecifics,
-      uiLocalNotificationDateInterpretation:
-      UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, // Use this
-    );
+  Future<void> showNotif({int id = 0, String? title, String? body, String? payload}) async {
+    print("notificatiion send");
+    return notificationplugin.show(id, title, body, notificationDetails());
   }
 
-  // Helper function to calculate the next instance of a given time
-  tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
-    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
+  Future<void> schedule({int id = 1, required String? title,required String? body, required int hour, required int minute})async {
+    final now = tz.TZDateTime.now(tz.local);
+    var scheduled_time =
+        tz.TZDateTime(tz.local, now.year, now.month,hour,minute);
 
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
-    }
-
-    return scheduledDate;
+      await notificationplugin.zonedSchedule(
+        id,
+        title,
+        body,
+        scheduled_time,
+        notificationDetails(),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        matchDateTimeComponents: DateTimeComponents.time,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime
+        
+      );
+      print("notification scheduled");
   }
+  Future<void> cancelNotif() async{
+    await notificationplugin.cancelAll();
+  }
+
+
 }
