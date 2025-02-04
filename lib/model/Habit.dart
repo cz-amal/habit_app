@@ -25,7 +25,7 @@ class Habit {
       'description': description,
       'isGood': isGood ? 1 : 0,
       'type': type ? 1 : 0,
-      'threshold': threshold ?? 0,
+      'threshold': threshold,
       'time': time.toIso8601String(),
     };
   }

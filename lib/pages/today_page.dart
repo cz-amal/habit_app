@@ -73,10 +73,10 @@ class _TodayPageState extends State<TodayPage>
                               defaultColor: Colors.grey[800],
                               flexible: true,
                               colorMode: ColorMode.color,
-                              // datasets: db.myGlobaldataset,
+                              datasets: db.mydataset,
                               // datasets: {DateTime(2025, 1,
                               // 26): 1},
-                              datasets: {},
+                              // datasets: {},
                               colorsets: {
                                 1: Colors.red.shade500,
                                 2: Colors.red.shade300,
@@ -117,11 +117,11 @@ class _TodayPageState extends State<TodayPage>
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      // child: ShowHabit(gridtype: true),
+                      child: ShowHabit(gridtype: true),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      // child: ShowHabit(gridtype: false),
+                      child: ShowHabit(gridtype: false),
                     ),
                   ],
                 ),

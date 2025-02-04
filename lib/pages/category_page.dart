@@ -112,8 +112,6 @@ class _CategoryPageState extends State<CategoryPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      habitInfoRow("Average Habit Color", ""),
-                      const SizedBox(height: 16),
                       habitInfoRow("Total Habits", "8"),
                       const SizedBox(height: 12),
                       habitInfoRow("Total Bad Habits", "6"),

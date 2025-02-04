@@ -42,9 +42,16 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    _initializeData();
+  }
 
-    // final db = context.read<Database>();
-    // db.calculateColorValueForDate(DateTime.now());
+  void _initializeData() async {
+    final db = context.read<Sql>();
+    db.clearDatabase();
+    bool isPresent = await db.isDate(DateTime.now());
+    if (!isPresent) {
+      await db.addColor(DateTime.now());
+    }
   }
 
 
