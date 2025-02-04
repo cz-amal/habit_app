@@ -74,9 +74,33 @@ class _TodayPageState extends State<TodayPage>
                               flexible: true,
                               colorMode: ColorMode.color,
                               datasets: db.mydataset,
-                              // datasets: {DateTime(2025, 1,
-                              // 26): 1},
-                              // datasets: {},
+                              // datasets:{
+                              //   DateTime(2025, 1, 1): 7,
+                              //   DateTime(2025, 1, 2): 0,
+                              //   DateTime(2025, 1, 3): 5,
+                              //   DateTime(2025, 1, 4): 1,
+                              //   DateTime(2025, 1, 5): 6,
+                              //   DateTime(2025, 1, 6): 2,
+                              //   DateTime(2025, 1, 7): 3,
+                              //   DateTime(2025, 1, 8): 2,
+                              //   DateTime(2025, 1, 9): 0,
+                              //   DateTime(2025, 1, 10): 7,
+                              //   DateTime(2025, 1, 11): 3,
+                              //   DateTime(2025, 1, 12): 1,
+                              //   DateTime(2025, 1, 13): 0,
+                              //   DateTime(2025, 1, 14): 5,
+                              //   DateTime(2025, 1, 15): 3,
+                              //   DateTime(2025, 1, 16): 2,
+                              //   DateTime(2025, 1, 17): 2,
+                              //   DateTime(2025, 1, 18): 2,
+                              //   DateTime(2025, 1, 19): 7,
+                              //   DateTime(2025, 1, 20): 3,
+                              //   DateTime(2025, 1, 21): 4,
+                              //   DateTime(2025, 1, 22): 5,
+                              //   DateTime(2025, 1, 23): 4
+                              // },
+
+
                               colorsets: {
                                 1: Colors.red.shade500,
                                 2: Colors.red.shade300,
@@ -91,9 +115,7 @@ class _TodayPageState extends State<TodayPage>
                               //   2:Colors.orange
                               // },
                               onClick: (value) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(value.toString())),
-                                );
+                               print(db.mydataset);
                               },
                             );
                           },

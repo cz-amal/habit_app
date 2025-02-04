@@ -398,6 +398,7 @@ class Sql with ChangeNotifier {
       where: 'date = ?',
       whereArgs: [dateString],
     );
+    print(results);
 
     // If the results are not empty, the date exists in the table
     notifyListeners();
@@ -531,9 +532,32 @@ class Sql with ChangeNotifier {
       String today = result.first['date'];
       dataset = {DateTime.parse(today): colorValue};
     } else {
-      dataset = {}; // Return empty map if no entry found
+      dataset = {DateTime.parse(formattedDate):0}; // Return empty map if no entry found
     }
   }
+  Future<void> getDatasetForallDate() async {
+    final db = await database;
+
+    // String formattedDate =
+    //     "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+
+    List<Map<String, dynamic>> result = await db
+        .rawQuery('SELECT * FROM color_values');
+
+    if (result.isNotEmpty) {
+      for (var h in result) {
+        print(h);
+        int colorValue = h['color'];
+        String today = h['date'];
+        dataset[DateTime.parse(today)] = colorValue;
+      }
+      print(dataset);
+    }else{
+      dataset = {};
+    }
+    notifyListeners();
+  }
+
 
   Future<void> calculateColorValueForDate(DateTime newDate) async {
     int totalGoodHabits = 0;
@@ -596,7 +620,8 @@ class Sql with ChangeNotifier {
     // Store the color value in SQLite
     await db.rawUpdate('UPDATE color_values SET color = ? WHERE date = ?',
         [colorValue, formattedDate]);
-    getDatasetForDate(DateTime.now());
+    // getDatasetForDate(DateTime.now());
+    getDatasetForallDate();
     notifyListeners();
     print("Color calculation completed and stored in SQLite");
   }

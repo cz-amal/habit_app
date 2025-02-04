@@ -52,6 +52,8 @@ class _HomePageState extends State<HomePage> {
     if (!isPresent) {
       await db.addColor(DateTime.now());
     }
+    db.getDatasetForallDate();
+    // db.getDatasetForDate(DateTime.now());
     db.calculateColorValueForDate(DateTime.now());
   }
 
