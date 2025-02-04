@@ -44,6 +44,7 @@ class _HabitGridState extends State<HabitGrid> {
       }
 
       value_controller.text = widget.current.toString();
+      print("here in value controller");
     });
 
   }
@@ -55,7 +56,7 @@ class _HabitGridState extends State<HabitGrid> {
               decoration: BoxDecoration(
                 color: isGreater == true || isChecked == true
                     ? widget.isGood ? Colors.green.shade400 : Colors.red.shade400
-                    : Colors.grey.shade800,
+                    : widget.isGood ? Colors.red.shade400 : Colors.green.shade400,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Padding(
@@ -88,8 +89,7 @@ class _HabitGridState extends State<HabitGrid> {
                                   highlightColor: Colors.green,
                                   onPressed: () {
                                     int? input_text =
-                                        int.tryParse(value_controller.text) ??
-                                            0;
+                                        int.parse(value_controller.text);
                                     final db = context.read<Sql>();
                                     if (input_text >= widget.threshold!) {
                                       setState(() {
@@ -98,6 +98,7 @@ class _HabitGridState extends State<HabitGrid> {
                                         value_controller.text =
                                             input_text.toString();
                                       });
+                                      print("input text is $input_text");
                                       db.updateChecked(int.parse(widget.id),
                                           DateTime.now(), true, input_text);
                                       // db.Marked(isChecked, isGreater);
@@ -109,6 +110,7 @@ class _HabitGridState extends State<HabitGrid> {
                                         value_controller.text =
                                             input_text.toString();
                                       });
+                                      print("input text is $input_text");
                                       db.updateChecked(int.parse(widget.id),
                                           DateTime.now(), false, input_text);
                                       // db.Marked(isChecked, isGreater);
@@ -123,16 +125,9 @@ class _HabitGridState extends State<HabitGrid> {
                           )
                         : Container(),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text(
-                          "12⭐️",
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
-                        Text(
-                          "5🔥",
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
+
                         Transform.scale(
                             scale: 1.5,
                             child: (widget.type == true)

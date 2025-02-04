@@ -47,13 +47,13 @@ class _HomePageState extends State<HomePage> {
 
   void _initializeData() async {
     final db = context.read<Sql>();
-    db.clearDatabase();
+    // db.clearDatabase();
     bool isPresent = await db.isDate(DateTime.now());
     if (!isPresent) {
       await db.addColor(DateTime.now());
     }
+    db.calculateColorValueForDate(DateTime.now());
   }
-
 
   @override
   Widget build(BuildContext context) {

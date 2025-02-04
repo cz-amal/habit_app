@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
+import 'package:provider/provider.dart';
+import '../model/Database.dart'; // Ensure this is correctly linked to your SQLite database handler.
 
 class CategoryPage extends StatefulWidget {
   const CategoryPage({super.key});
@@ -10,7 +12,12 @@ class CategoryPage extends StatefulWidget {
 }
 
 class _CategoryPageState extends State<CategoryPage> {
-  Map<String, double> dataMap = {"Good habits done": 70, "Bad habits done": 30};
+  Map<String, double> dataMap = {"Good habits done": 0, "Bad habits done": 0};
+  int totalHabits = 0;
+  int totalGoodHabits = 0;
+  int totalBadHabits = 0;
+  int goodHabitsDone = 0;
+  int badHabitsDone = 0;
 
   // List of motivational quotes
   final List<String> quotes = [
@@ -27,20 +34,62 @@ class _CategoryPageState extends State<CategoryPage> {
   ];
 
   int currentQuoteIndex = 0;
-
+  Timer? _quoteTimer;
   @override
   void initState() {
     super.initState();
     startQuoteRotation();
+    fetchHabitStats();
+  }
+
+  Future<void> fetchHabitStats() async {
+    final sql = Provider.of<Sql>(context, listen: false);
+
+    int total = await sql.getTotalHabits();
+    int goodTotal = await sql.getTotalGoodHabits();
+    int badTotal = await sql.getTotalBadHabits();
+    int goodDone = await sql.getTotalGoodHabitsDone();
+    int badDone = await sql.getTotalBadHabitsDone();
+
+    // Log for debugging
+    print('Total: $total, Good Total: $goodTotal, Bad Total: $badTotal');
+    print('Good Done: $goodDone, Bad Done: $badDone');
+
+    if (!mounted) return; // Ensure the widget is still mounted before updating state
+
+    setState(() {
+      totalHabits = total;
+      totalGoodHabits = goodTotal;
+      totalBadHabits = badTotal;
+      goodHabitsDone = goodDone;
+      badHabitsDone = badDone;
+
+      // Ensure non-null values for the pie chart
+      dataMap = {
+        "Good habits done": goodHabitsDone.toDouble(),
+        "Bad habits done": badHabitsDone.toDouble(),
+      };
+    });
   }
 
   void startQuoteRotation() {
-    Timer.periodic(const Duration(seconds: 5), (timer) {
-      setState(() {
-        currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
-      });
+    _quoteTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (mounted) { // Always check if the widget is still mounted
+        setState(() {
+          currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+        });
+      } else {
+        timer.cancel(); // Cancel the timer when not mounted
+      }
     });
   }
+
+  @override
+  void dispose() {
+    _quoteTimer?.cancel(); // Always cancel timers when the widget is disposed
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +100,6 @@ class _CategoryPageState extends State<CategoryPage> {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.2),
@@ -112,11 +160,11 @@ class _CategoryPageState extends State<CategoryPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      habitInfoRow("Total Habits", "8"),
+                      habitInfoRow("Total Habits", "$totalHabits"),
                       const SizedBox(height: 12),
-                      habitInfoRow("Total Bad Habits", "6"),
+                      habitInfoRow("Total Bad Habits", "$totalBadHabits"),
                       const SizedBox(height: 12),
-                      habitInfoRow("Total Good Habits", "2"),
+                      habitInfoRow("Total Good Habits", "$totalGoodHabits"),
                     ],
                   ),
                 ),
@@ -154,7 +202,6 @@ class _CategoryPageState extends State<CategoryPage> {
                   ),
                 ),
               ),
-
             ],
           ),
         ),
@@ -195,29 +242,6 @@ class _CategoryPageState extends State<CategoryPage> {
         ),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget progressIndicator(String title, double percent, Color color) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        CircularProgressIndicator(
-          value: percent,
-          color: color,
-          backgroundColor: Colors.grey[700],
-          strokeWidth: 6,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          title,
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,

@@ -118,7 +118,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "AMAL C Z",
+                          "Your name",
                           style: GoogleFonts.varelaRound(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -127,7 +127,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          "amaladhil020@gmail.com",
+                          "youremailid@gmail.com",
                           style: GoogleFonts.varelaRound(
                             fontSize: 15,
                             color: Colors.grey[300],
@@ -135,9 +135,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                       ],
                     ),
-                    Expanded(
-                      child: IconButton(onPressed: () {}, icon: Icon(Icons.logout, size: 30)),
-                    ),
+
                   ],
                 ),
               ),

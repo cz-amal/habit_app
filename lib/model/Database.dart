@@ -293,19 +293,15 @@ class Sql with ChangeNotifier {
   static Database? _database;
   Sql._internal();
 
-
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database!;
   }
 
+  Map<DateTime, int> dataset = {};
 
-  Map<DateTime,int> dataset = {};
-
-  Map<DateTime,int> get mydataset => dataset;
-
-
+  Map<DateTime, int> get mydataset => dataset;
 
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), 'habit_tracker.db');
@@ -341,6 +337,7 @@ class Sql with ChangeNotifier {
         ''');
     });
   }
+
   Future<void> clearDatabase() async {
     final db = await database;
     await db.delete('habits');
@@ -352,9 +349,10 @@ class Sql with ChangeNotifier {
     final db = await database;
     int habit_id = await db.insert('habits', habit.toMap());
     DateTime newDates = DateTime.now();
-    String formattedDate = "${newDates.year}-${newDates.month.toString().padLeft(2, '0')}-${newDates.day.toString().padLeft(2, '0')}";
+    String formattedDate =
+        "${newDates.year}-${newDates.month.toString().padLeft(2, '0')}-${newDates.day.toString().padLeft(2, '0')}";
     Complete newDate = Complete(
-      habitId: habit_id,  // Use the generated habitId
+      habitId: habit_id, // Use the generated habitId
       date: formattedDate,
       isCompleted: false,
       current: 0,
@@ -365,29 +363,34 @@ class Sql with ChangeNotifier {
   }
 
   Future<List<Map<String, dynamic>>> getmyHabits() async {
-    final db = await database;  // Open the database
-    List<Map<String, dynamic>> results = await db.query('habits');  // Query the 'habits' table
-    return results;  // Return the list of maps directly
+    final db = await database; // Open the database
+    List<Map<String, dynamic>> results =
+        await db.query('habits'); // Query the 'habits' table
+    return results; // Return the list of maps directly
   }
 
   Future<List<Map<String, dynamic>>> getaHabits(int habit_id) async {
-    final db = await database;  // Open the database
-    List<Map<String, dynamic>> results = await db.query('habits',where: "id = ?",whereArgs: [habit_id]);
+    final db = await database; // Open the database
+    List<Map<String, dynamic>> results =
+        await db.query('habits', where: "id = ?", whereArgs: [habit_id]);
     // Query the 'habits' table
-    return results;  // Return the list of maps directly
+    return results; // Return the list of maps directly
   }
+
   Future<List<Map<String, dynamic>>> getFilteredHabits(int isGood) async {
-    final db = await database;  // Open the database
-    List<Map<String, dynamic>> results = await db.query('habits',where: "isGood = ?",whereArgs: [isGood]);
+    final db = await database; // Open the database
+    List<Map<String, dynamic>> results =
+        await db.query('habits', where: "isGood = ?", whereArgs: [isGood]);
     // Query the 'habits' table
-    return results;  // Return the list of maps directly
+    return results; // Return the list of maps directly
   }
 
   Future<bool> isDate(DateTime date) async {
     final db = await database;
 
     // Convert DateTime to a string format (ISO 8601 or any format that matches the DB)
-    String dateString = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+    String dateString =
+        "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
 
     // Query the color_values table to check if the date is present
     List<Map<String, dynamic>> results = await db.query(
@@ -397,17 +400,20 @@ class Sql with ChangeNotifier {
     );
 
     // If the results are not empty, the date exists in the table
+    notifyListeners();
     return results.isNotEmpty;
-  }
 
+  }
 
   Future<void> checkAndInsertTodayEntries() async {
     final db = await database;
     DateTime today = DateTime.now(); // Get today's date (YYYY-MM-DD)
-    String dateString = "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
+    String dateString =
+        "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
 
     // Fetch all habit IDs
-    List<Map<String, dynamic>> habits = await db.query('habits', columns: ['id']);
+    List<Map<String, dynamic>> habits =
+        await db.query('habits', columns: ['id']);
 
     for (var habit in habits) {
       int habitId = habit['id'];
@@ -422,85 +428,80 @@ class Sql with ChangeNotifier {
       // If no entry exists for today, insert a new entry with isCompleted = false
       if (existingEntries.isEmpty) {
         Complete newdate = Complete(
-            habitId: habitId,
-            date: dateString,
-            isCompleted: false,
-            current: 0
-        );
-        await db.insert('complete',newdate.toMap());
+            habitId: habitId, date: dateString, isCompleted: false, current: 0);
+        await db.insert('complete', newdate.toMap());
       }
     }
   }
-
-
-
-
-
-  Future<bool> isHabitDoneToday(int habitId) async {
+  Map<int,bool> done = {};
+  Map<int, bool> get mydone => done;
+  Future<Map<String, dynamic>> isHabitDoneToday(int habitId) async {
     final db = await database;
 
     // Format today's date as YYYY-MM-DD
-    String todayDate = "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}";
+    String todayDate =
+        "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}";
 
-    // Query the `complete` table to check if today's entry exists with isCompleted = 1
+    // Query the `complete` table to check if today's entry exists
     List<Map<String, dynamic>> result = await db.rawQuery(
-        'SELECT * FROM complete WHERE habit_id = ? AND date = ? AND isCompleted = 1',
+        'SELECT isCompleted, current FROM complete WHERE habit_id = ? AND date = ?',
         [habitId, todayDate]
     );
 
-    return result.isNotEmpty; // If result is not empty, habit is completed today
+    // If result is not empty, extract values; otherwise, default values
+    bool isCompleted = result.isNotEmpty && result[0]['isCompleted'] == 1;
+    int currentValue = result.isNotEmpty ? result[0]['current'] ?? 0 : 0;
+
+    return {
+      "isCompleted": isCompleted,
+      "current": currentValue,
+    };
   }
 
 
-
-
-
-
-  Future<void> addColor(DateTime date) async{
+  Future<void> addColor(DateTime date) async {
     DateTime today = DateTime.now(); // Get today's date (YYYY-MM-DD)
-    String dateString = "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
+    String dateString =
+        "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
     ColorValue newcolor = ColorValue(date: dateString, color: 0);
     final db = await database;
-    db.insert('color_values',newcolor.toMap());
+    db.insert('color_values', newcolor.toMap());
     print("new date added by sqflite");
-
   }
 
-  Future<void> deleteHabit(int habit_id) async{
+  Future<void> deleteHabit(int habit_id) async {
     final db = await database;
     await db.delete('habits', where: 'id = ?', whereArgs: [habit_id]);
-    await db.delete('complete', where: 'habit_id = ?',whereArgs: [habit_id]);
+    await db.delete('complete', where: 'habit_id = ?', whereArgs: [habit_id]);
     print("habit deleted through sqflite");
     notifyListeners();
   }
 
-  Future<void> updateHabit(Habit habit,int habit_id) async {
+  Future<void> updateHabit(Habit habit, int habit_id) async {
     final db = await database;
-    await db.update('habits', habit.toMap(), where: 'id = ?', whereArgs: [habit_id]);
+    await db.update('habits', habit.toMap(),
+        where: 'id = ?', whereArgs: [habit_id]);
     print("habit updated through sqflite");
     notifyListeners();
   }
 
-
-  Future<void> updateChecked(int habitId, DateTime newDate, bool isCompleted, int current) async {
+  Future<void> updateChecked(
+      int habitId, DateTime newDate, bool isCompleted, int current) async {
     final db = await database;
-    String newDateKey = "${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')}";
+    String newDateKey =
+        "${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')}";
     // Check if an entry for this habit on the given date exists
     print(habitId);
     List<Map<String, dynamic>> existingEntries = await db.rawQuery(
         'SELECT * FROM complete WHERE habit_id = ? AND date = ?',
-        [habitId, newDateKey]
-    );
-
+        [habitId, newDateKey]);
 
     if (existingEntries.isNotEmpty) {
       // If the entry exists, update it
       print("updating habit table");
       await db.rawUpdate(
           'UPDATE complete SET isCompleted = ?, current = ? WHERE habit_id = ? AND date = ?',
-          [isCompleted ? 1 : 0, current, habitId, newDateKey]
-      );
-
+          [isCompleted ? 1 : 0, current, habitId, newDateKey]);
     } else {
       // If the entry doesn't exist, insert a new entry
       await db.insert(
@@ -513,8 +514,8 @@ class Sql with ChangeNotifier {
         },
       );
     }
+    notifyListeners();
   }
-
 
   Future<void> getDatasetForDate(DateTime date) async {
     final db = await database;
@@ -522,25 +523,17 @@ class Sql with ChangeNotifier {
     String formattedDate =
         "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
 
-    List<Map<String, dynamic>> result = await db.rawQuery(
-        'SELECT * FROM color_values WHERE date = ?',
-        [formattedDate]
-    );
+    List<Map<String, dynamic>> result = await db
+        .rawQuery('SELECT * FROM color_values WHERE date = ?', [formattedDate]);
 
     if (result.isNotEmpty) {
       int colorValue = result.first['color'];
       String today = result.first['date'];
-      dataset =  {DateTime.parse(today): colorValue};
+      dataset = {DateTime.parse(today): colorValue};
     } else {
-      dataset =  {}; // Return empty map if no entry found
+      dataset = {}; // Return empty map if no entry found
     }
   }
-
-
-
-
-
-
 
   Future<void> calculateColorValueForDate(DateTime newDate) async {
     int totalGoodHabits = 0;
@@ -571,8 +564,7 @@ class Sql with ChangeNotifier {
       // Fetch completion data for the given date
       List<Map<String, dynamic>> completionData = await db.rawQuery(
           'SELECT isCompleted FROM complete WHERE habit_id = ? AND date = ?',
-          [habitId, formattedDate]
-      );
+          [habitId, formattedDate]);
 
       if (completionData.isEmpty) continue;
 
@@ -590,9 +582,11 @@ class Sql with ChangeNotifier {
     int goodHabitsNotDone = totalGoodHabits - goodHabitsDone;
     int badHabitsNotDone = totalBadHabits - badHabitsDone;
 
-    print("Good Done: $goodHabitsDone, Good Not Done: $goodHabitsNotDone, Bad Done: $badHabitsDone, Bad Not Done: $badHabitsNotDone");
+    print(
+        "Good Done: $goodHabitsDone, Good Not Done: $goodHabitsNotDone, Bad Done: $badHabitsDone, Bad Not Done: $badHabitsNotDone");
 
-    int netScore = goodHabitsDone - goodHabitsNotDone - badHabitsDone + badHabitsNotDone;
+    int netScore =
+        goodHabitsDone - goodHabitsNotDone - badHabitsDone + badHabitsNotDone;
     print("Net Score: $netScore");
 
     int totalTasks = totalGoodHabits + totalBadHabits;
@@ -600,28 +594,66 @@ class Sql with ChangeNotifier {
     int colorValue = (totalTasks == 0) ? 4 : mapToRange(netScore, totalTasks);
 
     // Store the color value in SQLite
-    await db.rawUpdate(
-        'UPDATE color_values SET color = ? WHERE date = ?',
-        [colorValue, formattedDate]
-    );
+    await db.rawUpdate('UPDATE color_values SET color = ? WHERE date = ?',
+        [colorValue, formattedDate]);
     getDatasetForDate(DateTime.now());
     notifyListeners();
     print("Color calculation completed and stored in SQLite");
   }
 
+  Future<int> getTotalHabits() async {
+    final db = await database;
+    final result = await db.rawQuery('SELECT COUNT(*) as total FROM habits');
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
 
+  Future<int> getTotalGoodHabits() async {
+    final db = await database;
+    final result = await db
+        .rawQuery('SELECT COUNT(*) as total FROM habits WHERE isGood = 1');
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
 
+  Future<int> getTotalBadHabits() async {
+    final db = await database;
+    final result = await db
+        .rawQuery('SELECT COUNT(*) as total FROM habits WHERE isGood = 0');
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
 
+  Future<int> getTotalGoodHabitsDone() async {
+    final db = await database;
+    final result = await db.rawQuery(
+        'SELECT COUNT(*) FROM complete WHERE isCompleted = 1 AND habit_id IN (SELECT id FROM habits WHERE isGood = 1)');
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
 
+  Future<int> getTotalBadHabitsDone() async {
+    final db = await database;
+    final result = await db.rawQuery(
+        'SELECT COUNT(*) FROM complete WHERE isCompleted = 1 AND habit_id IN (SELECT id FROM habits WHERE isGood = 0)');
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
 
+  Future<int> getCurrentHabitValueForToday(int habitId) async {
+    final db = await database;
+    final today = DateTime.now();
+    final formattedDate =
+        '${today.year}-${today.month}-${today.day}'; // Format the date as YYYY-MM-DD
 
+    final result = await db.query(
+      'habits', // Assuming your table name is 'habits'
+      columns: ['current'],
+      where: 'id = ? AND date = ?', // Filter by habit ID and the current date
+      whereArgs: [habitId, formattedDate],
+    );
+
+    if (result.isNotEmpty) {
+      // Safely return the 'current' value as an integer
+      return result.first['current'] as int? ??
+          0; // Return the current value for today, or 0 if not found
+    }
+
+    return 0; // If no entry for today, return 0
+  }
 }
-
-
-
-
-
-
-
-
-
